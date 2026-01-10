@@ -12,6 +12,7 @@ import { Router } from 'express';
 
 // Category routes
 import libraryRoutes from '../modules/library/library.routes';
+import productsRoutes from '../modules/products/products.routes';
 // import officeAndBusinessRoutes from '../modules/office_and_business/officeAndBusiness.routes';
 
 const router = Router();
@@ -30,6 +31,7 @@ const router = Router();
 
 // Category routes
 router.use('/library', libraryRoutes);
+router.use('/products', productsRoutes);
 // router.use('/office-and-business', officeAndBusinessRoutes);
 // ... add more categories as you create them
 

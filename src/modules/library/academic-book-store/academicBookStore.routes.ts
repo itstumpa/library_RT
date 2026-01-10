@@ -1,23 +1,26 @@
 // src/modules/library/academicBookStore/academicBookStore.routes.ts
 
 import { Router } from 'express';
-import academicBookController from './academicBookStore.controller';
+import academicBookStoreController from './academicBookStore.controller';
 
 const router = Router();
 
-// POST   /api/academic-book-store        → Create book
-router.post('/', academicBookController.create);
+// GET /api/library/academic-book-store
+router.get('/', academicBookStoreController.getAll);
 
-// GET    /api/academic-book-store        → Get all books
-router.get('/', academicBookController.getAll);
+// GET /api/library/academic-book-store/search?subject=Physics
+router.get('/search', academicBookStoreController.searchBySubject);
 
-// GET    /api/academic-book-store/:id    → Get one book
-router.get('/:id', academicBookController.getOne);
+// GET /api/library/academic-book-store/:id
+router.get('/:id', academicBookStoreController.getOne);
 
-// PUT    /api/academic-book-store/:id    → Update book
-router.put('/:id', academicBookController.update);
+// POST /api/library/academic-book-store
+router.post('/', academicBookStoreController.create);
 
-// DELETE /api/academic-book-store/:id    → Delete book
-router.delete('/:id', academicBookController.remove);
+// PUT /api/library/academic-book-store/:id
+router.put('/:id', academicBookStoreController.update);
+
+// DELETE /api/library/academic-book-store/:id
+router.delete('/:id', academicBookStoreController.delete);
 
 export default router;
