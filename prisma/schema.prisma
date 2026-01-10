@@ -49,282 +49,20 @@ model AcademicBook {
   weight          Float?   // in grams
   dimensions      String?  // "20x15x2 cm"
   
-  // Relations
-  subjectId       String?
-  subject         Subject? @relation(fields: [subjectId], references: [id])
-  courseId        String?
-  course          Course?  @relation(fields: [courseId], references: [id])
-  universityId    String?
-  university      University? @relation(fields: [universityId], references: [id])
-  boardId         String?
-  board           Board?   @relation(fields: [boardId], references: [id])
-  classId         String?
-  class           Class?   @relation(fields: [classId], references: [id])
-  semesterId      String?
-  semester        Semester? @relation(fields: [semesterId], references: [id])
-  
-  // Many-to-many relations
-  bookSets        BookSetItem[]
+   
   orderItems      OrderItem[]
-  institutionOrderItems InstitutionOrderItem[]
   inventoryLogs   InventoryLog[]
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
-  @@index([subjectId])
-  @@index([courseId])
-  @@index([universityId])
-  @@index([boardId])
-  @@index([classId])
   @@index([status])
   @@index([isbn])
   @@map("academic_books")
 }
 
-model Subject {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
-  description String?
-  icon        String?
-  color       String?  // Hex color for UI
-  isActive    Boolean  @default(true)
-  displayOrder Int     @default(0)
-  
-  // Relations
-  books       AcademicBook[]
-  courses     Course[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("subjects")
-}
 
-model Course {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
-  code        String?  // Course code like "CSE101"
-  description String?
-  duration    String?  // "4 years", "2 semesters"
-  level       CourseLevel @default(UNDERGRADUATE)
-  isActive    Boolean  @default(true)
-  
-  // Relations
-  subjectId   String?
-  subject     Subject? @relation(fields: [subjectId], references: [id])
-  universityId String?
-  university  University? @relation(fields: [universityId], references: [id])
-  books       AcademicBook[]
-  semesters   Semester[]
-  bookSets    BookSet[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([subjectId])
-  @@index([universityId])
-  @@map("courses")
-}
 
-model University {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
-  shortName   String?  // "DU", "BUET"
-  type        UniversityType @default(PUBLIC)
-  location    String?
-  website     String?
-  logo        String?
-  isActive    Boolean  @default(true)
-  
-  // Relations
-  courses     Course[]
-  books       AcademicBook[]
-  institutionOrders InstitutionOrder[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("universities")
-}
-
-model Board {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
-  shortName   String?  // "NCTB", "Cambridge"
-  type        BoardType @default(NATIONAL)
-  country     String   @default("Bangladesh")
-  isActive    Boolean  @default(true)
-  
-  // Relations
-  books       AcademicBook[]
-  classes     Class[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("boards")
-}
-
-model Class {
-  id          String   @id @default(uuid())
-  name        String   // "Class 10", "HSC 1st Year"
-  slug        String   @unique
-  level       ClassLevel @default(SECONDARY)
-  grade       Int?     // 1-12
-  isActive    Boolean  @default(true)
-  
-  // Relations
-  boardId     String?
-  board       Board?   @relation(fields: [boardId], references: [id])
-  books       AcademicBook[]
-  bookSets    BookSet[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([boardId])
-  @@map("classes")
-}
-
-model Semester {
-  id          String   @id @default(uuid())
-  name        String   // "1st Semester", "Spring 2024"
-  slug        String   @unique
-  number      Int      // 1, 2, 3, etc.
-  year        Int?     // 2024
-  isActive    Boolean  @default(true)
-  
-  // Relations
-  courseId    String?
-  course      Course?  @relation(fields: [courseId], references: [id])
-  books       AcademicBook[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([courseId])
-  @@map("semesters")
-}
-
-model BookSet {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
-  description String?
-  totalPrice  Float    @default(0)
-  discountPrice Float?
-  isActive    Boolean  @default(true)
-  
-  // Relations
-  courseId    String?
-  course      Course?  @relation(fields: [courseId], references: [id])
-  classId     String?
-  class       Class?   @relation(fields: [classId], references: [id])
-  items       BookSetItem[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([courseId])
-  @@index([classId])
-  @@map("book_sets")
-}
-
-model BookSetItem {
-  id          String   @id @default(uuid())
-  quantity    Int      @default(1)
-  
-  // Relations
-  bookSetId   String
-  bookSet     BookSet  @relation(fields: [bookSetId], references: [id], onDelete: Cascade)
-  bookId      String
-  book        AcademicBook @relation(fields: [bookId], references: [id])
-  
-  createdAt   DateTime @default(now())
-  
-  @@unique([bookSetId, bookId])
-  @@map("book_set_items")
-}
-
-model StudyMaterial {
-  id          String   @id @default(uuid())
-  title       String
-  slug        String   @unique
-  description String?
-  type        MaterialType @default(PDF)
-  fileUrl     String
-  fileName    String
-  fileSize    Int      // in bytes
-  downloadCount Int    @default(0)
-  price       Float    @default(0) // 0 for free materials
-  isActive    Boolean  @default(true)
-  
-  // Relations
-  subjectId   String?
-  courseId    String?
-  classId     String?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([subjectId])
-  @@index([courseId])
-  @@index([classId])
-  @@map("study_materials")
-}
-
-model InstitutionOrder {
-  id              String   @id @default(uuid())
-  orderNumber     String   @unique
-  institutionName String
-  contactPerson   String
-  email           String
-  phone           String
-  address         String
-  totalAmount     Float    @default(0)
-  discountAmount  Float    @default(0)
-  finalAmount     Float    @default(0)
-  status          InstitutionOrderStatus @default(PENDING)
-  notes           String?
-  quoteRequested  Boolean  @default(false)
-  quoteUrl        String?
-  invoiceUrl      String?
-  
-  // Relations
-  universityId    String?
-  university      University? @relation(fields: [universityId], references: [id])
-  items           InstitutionOrderItem[]
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  @@index([universityId])
-  @@index([status])
-  @@map("institution_orders")
-}
-
-model InstitutionOrderItem {
-  id          String   @id @default(uuid())
-  quantity    Int
-  unitPrice   Float
-  totalPrice  Float
-  
-  // Relations
-  orderId     String
-  order       InstitutionOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  bookId      String
-  book        AcademicBook @relation(fields: [bookId], references: [id])
-  
-  createdAt   DateTime @default(now())
-  
-  @@unique([orderId, bookId])
-  @@map("institution_order_items")
-}
 
 model Order {
   id              String   @id @default(uuid())
@@ -401,51 +139,6 @@ enum BookStatus {
   DISCONTINUED
 }
 
-enum CourseLevel {
-  DIPLOMA
-  UNDERGRADUATE
-  POSTGRADUATE
-  DOCTORAL
-  PROFESSIONAL
-}
-
-enum UniversityType {
-  PUBLIC
-  PRIVATE
-  INTERNATIONAL
-  TECHNICAL
-}
-
-enum BoardType {
-  NATIONAL
-  INTERNATIONAL
-  RELIGIOUS
-  TECHNICAL
-}
-
-enum ClassLevel {
-  PRIMARY
-  SECONDARY
-  HIGHER_SECONDARY
-}
-
-enum MaterialType {
-  PDF
-  VIDEO
-  AUDIO
-  PRESENTATION
-  DOCUMENT
-}
-
-enum InstitutionOrderStatus {
-  PENDING
-  QUOTE_SENT
-  CONFIRMED
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-}
 
 enum OrderStatus {
   PENDING
@@ -466,7 +159,7 @@ enum InventoryLogType {
   TRANSFER
 }
 
-enum Role {
+enum UserRole {
   USER
   ADMIN
 }
