@@ -14,41 +14,24 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  name     String?
-  email    String  @unique
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-
-model Category {
-  id           Int           @id @default(autoincrement())
-  name         String
-  slug         String        @unique
-  products      Product[]
-  subCategories SubCategory[]
-  createdAt    DateTime      @default(now())
-}
-model SubCategory {
-  id          Int      @id @default(autoincrement())
-  name        String
-  slug        String   @unique
-  categoryId  Int
-  category    Category @relation(fields: [categoryId], references: [id])
-  products      Product[]
+// Academic Book Store table
+model AcademicBook {
+  id          String   @id @default(uuid())
+  title       String
+  author      String
+  subject     String
+  price       Float
+  stock       Int      @default(0)
+  description String?
   createdAt   DateTime @default(now())
-}
-model Product {
-  id            Int         @id @default(autoincrement())
-  name          String
-  slug          String      @unique
-  price         Float
-  categoryId    Int
-  subCategoryId Int
-
-  category      Category    @relation(fields: [categoryId], references: [id])
-  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
-
-  createdAt     DateTime    @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 

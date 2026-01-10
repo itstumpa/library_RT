@@ -7,7 +7,12 @@
     "dev": "nodemon --exec tsx src/server.ts",
     "build": "tsc",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:push": "prisma db push",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "ts-node prisma/seeds/index.ts",
+    "prisma:reset": "prisma migrate reset --force",
+    "db:setup": "npm run prisma:generate && npm run prisma:migrate:dev && npm run prisma:seed"
   },
   "repository": {
     "type": "git",
@@ -32,8 +37,10 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "morgan": "^1.10.1",
     "pg": "^8.16.3"
   }
 }

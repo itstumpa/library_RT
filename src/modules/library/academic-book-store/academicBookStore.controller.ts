@@ -1,309 +1,112 @@
-// src/modules/library/academic_book_store/academicBookStore.controller.ts
+// src/modules/library/academicBookStore/academicBookStore.controller.ts
 
 import { Request, Response } from 'express';
-import { asyncHandler } from '../../../shared/utils/asyncHandler.util';
-import { ApiResponse } from '../../../shared/utils/apiResponse.util';
-import { ApiError } from '../../../shared/utils/apiError.util';
-import { HttpStatus } from '../../../shared/constants/httpStatus.constant';
-import { academicBookStoreService } from './academicBookStore.service';
-import {
-  ICreateAcademicBookDTO,
-  IUpdateAcademicBookDTO,
-  IAcademicBookQuery,
-  IBulkUpdateDTO,
-  IBulkDeleteDTO,
-  IStockUpdateDTO,
-} from './academicBookStore.types';
+import academicBookService from './academicBookStore.service';
 
-class AcademicBookStoreController {
-  
-  // ========================
-  // CREATE BOOK
-  // ========================
-  
-  create = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
+// CREATE
+const create = async (req: Request, res: Response) => {
+  try {
+    const book = await academicBookService.createBook(req.body);
+    res.status(201).json({
+      success: true,
+      message: 'Book created successfully',
+      data: book,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create book',
+      error: error,
+    });
+  }
+};
 
-    const bookData: ICreateAcademicBookDTO = req.body;
+// GET ALL
+const getAll = async (req: Request, res: Response) => {
+  try {
+    const books = await academicBookService.getAllBooks();
+    res.status(200).json({
+      success: true,
+      message: 'Books fetched successfully',
+      data: books,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch books',
+      error: error,
+    });
+  }
+};
 
-    const book = await academicBookStoreService.create(storeId, bookData);
-
-    res.status(HttpStatus.CREATED).json(
-      ApiResponse.success(
-        book,
-        'Book created successfully',
-        HttpStatus.CREATED
-      )
-    );
-  });
-
-  // ========================
-  // GET ALL BOOKS
-  // ========================
-  
-  findAll = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
-
-    const query: IAcademicBookQuery = {
-      page: parseInt(req.query.page as string) || 1,
-      limit: parseInt(req.query.limit as string) || 10,
-      search: req.query.search as string,
-      categoryId: req.query.categoryId as string,
-      authorId: req.query.authorId as string,
-      publisherId: req.query.publisherId as string,
-      academicLevel: req.query.academicLevel as any,
-      subject: req.query.subject as string,
-      minPrice: req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined,
-      maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined,
-      format: req.query.format as any,
-      condition: req.query.condition as any,
-      language: req.query.language as string,
-      isFeatured: req.query.isFeatured === 'true' ? true : req.query.isFeatured === 'false' ? false : undefined,
-      isActive: req.query.isActive === 'true' ? true : req.query.isActive === 'false' ? false : undefined,
-      sortBy: req.query.sortBy as any,
-      sortOrder: req.query.sortOrder as any,
-    };
-
-    const result = await academicBookStoreService.findAll(storeId, query);
-
-    res.status(HttpStatus.OK).json(
-      ApiResponse.success(
-        result,
-        'Books retrieved successfully',
-        HttpStatus.OK
-      )
-    );
-  });
-
-  // ========================
-  // GET SINGLE BOOK BY ID
-  // ========================
-  
-  findById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
+// GET ONE
+const getOne = async (req: Request, res: Response) => {
+  try {
     const { id } = req.params;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
-
-    const book = await academicBookStoreService.findById(storeId, id);
+    const book = await academicBookService.getBookById(id);
 
     if (!book) {
-      throw new ApiError(HttpStatus.NOT_FOUND, 'Book not found');
+      return res.status(404).json({
+        success: false,
+        message: 'Book not found',
+      });
     }
 
-    res.status(HttpStatus.OK).json(
-      ApiResponse.success(
-        book,
-        'Book retrieved successfully',
-        HttpStatus.OK
-      )
-    );
-  });
+    res.status(200).json({
+      success: true,
+      message: 'Book fetched successfully',
+      data: book,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch book',
+      error: error,
+    });
+  }
+};
 
-  // ========================
-  // GET SINGLE BOOK BY SLUG
-  // ========================
-  
-  findBySlug = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
-    const { slug } = req.params;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
-
-    const book = await academicBookStoreService.findBySlug(storeId, slug);
-
-    if (!book) {
-      throw new ApiError(HttpStatus.NOT_FOUND, 'Book not found');
-    }
-
-    res.status(HttpStatus.OK).json(
-      ApiResponse.success(
-        book,
-        'Book retrieved successfully',
-        HttpStatus.OK
-      )
-    );
-  });
-
-  // ========================
-  // UPDATE BOOK
-  // ========================
-  
-  update = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
+// UPDATE
+const update = async (req: Request, res: Response) => {
+  try {
     const { id } = req.params;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
+    const book = await academicBookService.updateBook(id, req.body);
+    res.status(200).json({
+      success: true,
+      message: 'Book updated successfully',
+      data: book,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update book',
+      error: error,
+    });
+  }
+};
 
-    const updateData: IUpdateAcademicBookDTO = req.body;
-
-    const book = await academicBookStoreService.update(storeId, id, updateData);
-
-    res.status(HttpStatus.OK).json(
-      ApiResponse.success(
-        book,
-        'Book updated successfully',
-        HttpStatus.OK
-      )
-    );
-  });
-
-  // ========================
-  // DELETE BOOK
-  // ========================
-  
-  delete = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
+// DELETE
+const remove = async (req: Request, res: Response) => {
+  try {
     const { id } = req.params;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
+    await academicBookService.deleteBook(id);
+    res.status(200).json({
+      success: true,
+      message: 'Book deleted successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete book',
+      error: error,
+    });
+  }
+};
 
-    await academicBookStoreService.delete(storeId, id);
-
-    res.status(HttpStatus.OK).json(
-      ApiResponse.success(
-        null,
-        'Book deleted successfully',
-        HttpStatus.OK
-      )
-    );
-  });
-
-  // ========================
-  // BULK UPDATE
-  // ========================
-  
-  bulkUpdate = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
-
-    const bulkData: IBulkUpdateDTO = req.body;
-
-    const count = await academicBookStoreService.bulkUpdate(storeId, bulkData);
-
-    res.status(HttpStatus.OK).json(
-      ApiResponse.success(
-        { updatedCount: count },
-        `${count} books updated successfully`,
-        HttpStatus.OK
-      )
-    );
-  });
-
-  // ========================
-  // BULK DELETE
-  // ========================
-  
-  bulkDelete = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
-
-    const bulkData: IBulkDeleteDTO = req.body;
-
-    const count = await academicBookStoreService.bulkDelete(storeId, bulkData);
-
-    res.status(HttpStatus.OK).json(
-      ApiResponse.success(
-        { deletedCount: count },
-        `${count} books deleted successfully`,
-        HttpStatus.OK
-      )
-    );
-  });
-
-  // ========================
-  // UPDATE STOCK
-  // ========================
-  
-  updateStock = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
-    const { id } = req.params;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
-
-    const stockData: IStockUpdateDTO = req.body;
-
-    const book = await academicBookStoreService.updateStock(storeId, id, stockData);
-
-    res.status(HttpStatus.OK).json(
-      ApiResponse.success(
-        book,
-        'Stock updated successfully',
-        HttpStatus.OK
-      )
-    );
-  });
-
-  // ========================
-  // GET LOW STOCK BOOKS
-  // ========================
-  
-  getLowStock = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
-
-    const books = await academicBookStoreService.getLowStockBooks(storeId);
-
-    res.status(HttpStatus.OK).json(
-      ApiResponse.success(
-        { books, count: books.length },
-        'Low stock books retrieved successfully',
-        HttpStatus.OK
-      )
-    );
-  });
-
-  // ========================
-  // GET FEATURED BOOKS
-  // ========================
-  
-  getFeatured = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const storeId = req.params.storeId || req.user?.storeId;
-    const limit = parseInt(req.query.limit as string) || 10;
-    
-    if (!storeId) {
-      throw new ApiError(HttpStatus.BAD_REQUEST, 'Store ID is required');
-    }
-
-    const books = await academicBookStoreService.getFeaturedBooks(storeId, limit);
-
-    res.status(HttpStatus.OK).json(
-      ApiResponse.success(
-        { books, count: books.length },
-        'Featured books retrieved successfully',
-        HttpStatus.OK
-      )
-    );
-  });
-}
-
-// Export singleton instance
-export const academicBookStoreController = new AcademicBookStoreController();
-export default academicBookStoreController;
+export default {
+  create,
+  getAll,
+  getOne,
+  update,
+  remove,
+};
