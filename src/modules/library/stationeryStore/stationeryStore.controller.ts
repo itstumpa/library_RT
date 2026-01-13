@@ -5,26 +5,25 @@ import stationeryStoreService from './stationeryStore.service';
 
 class StationeryStoreController {
 
-  // CREATE BOOK
+  // CREATE ITEM
   async create(req: Request, res: Response) {
     try {
-      const book = await stationeryStoreService.createBook(req.body);
+      const item = await stationeryStoreService.createItem(req.body);
       res.status(201).json({
         success: true,
-        message: 'Book created successfully',
-        
-        data: book,
+        message: 'Item created successfully',
+        data: item,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Failed to create book',
+        message: 'Failed to create item',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   }
 
-  // GET ALL BOOKS
+  // GET ALL ITEMS
   async getAll(req: Request, res: Response) {
     try {
       const filters = {
@@ -38,96 +37,96 @@ class StationeryStoreController {
         sortOrder: req.query.sortOrder as 'asc' | 'desc',
       };
 
-      const result = await stationeryStoreService.getAllBooks(filters);
+      const result = await stationeryStoreService.getAllItems(filters);
       res.status(200).json({
         success: true,
-        message: 'Books fetched successfully',
+        message: 'Items fetched successfully',
         count: result.data.length,
         ...result,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch books',
+        message: 'Failed to fetch items',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   }
 
-  // GET BOOK BY ID
+  // GET ITEM BY ID
   async getOne(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const book = await stationeryStoreService.getBookById(id);
+      const item = await stationeryStoreService.getItemById(id);
 
-      if (!book) {
+      if (!item) {
         return res.status(404).json({
           success: false,
-          message: 'Book not found',
+          message: 'Item not found',
         });
       }
 
       res.status(200).json({
         success: true,
-        message: 'Book fetched successfully',
-        data: book,
+        message: 'Item fetched successfully',
+        data: item,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch book',
+        message: 'Failed to fetch item',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   }
 
-  // GET BOOK BY ISBN
-  async getByISBN(req: Request, res: Response) {
+  // GET ITEM BY SKU
+  async getBySKU(req: Request, res: Response) {
     try {
-      const { isbn } = req.params;
-      const book = await stationeryStoreService.getBookByISBN(isbn);
+      const { sku } = req.params;
+      const item = await stationeryStoreService.getItemBySKU(sku);
 
-      if (!book) {
+      if (!item) {
         return res.status(404).json({
           success: false,
-          message: 'Book not found',
+          message: 'Item not found',
         });
       }
 
       res.status(200).json({
         success: true,
-        message: 'Book fetched successfully',
-        data: book,
+        message: 'Item fetched successfully',
+        data: item,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch book by ISBN',
+        message: 'Failed to fetch item by SKU',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   }
 
-  // UPDATE BOOK
+  // UPDATE ITEM
   async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const book = await stationeryStoreService.updateBook(id, req.body);
+      const item = await stationeryStoreService.updateItem(id, req.body);
       res.status(200).json({
         success: true,
-        message: 'Book updated successfully',
-        data: book,
+        message: 'Item updated successfully',
+        data: item,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Failed to update book',
+        message: 'Failed to update item',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   }
 
-  // UPDATE BOOK STATUS
+  // UPDATE ITEM STATUS
   async updateStatus(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -140,54 +139,54 @@ class StationeryStoreController {
         });
       }
 
-      const book = await stationeryStoreService.updateBookStatus(id, status);
+      const item = await stationeryStoreService.updateItemStatus(id, status);
       res.status(200).json({
         success: true,
-        message: 'Book status updated successfully',
-        data: book,
+        message: 'Item status updated successfully',
+        data: item,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Failed to update',
-                error: error instanceof Error ? error.message : 'Unknown error',
-      });
-    }
-  }
-
-  // DELETE BOOK
-  async delete(req: Request, res: Response) {
-    try {
-      const { id } = req.params;
-      await stationeryStoreService.deleteBook(id);
-      res.status(200).json({
-        success: true,
-        message: 'Book deleted successfully',
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Failed to delete book',
+        message: 'Failed to update status',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   }
 
-  // GET LATEST EDITIONS
-  async getLatestEditions(req: Request, res: Response) {
+  // DELETE ITEM
+  async delete(req: Request, res: Response) {
     try {
-      const limit = req.query.limit ? Number(req.query.limit) : 20;
-      const books = await stationeryStoreService.getLatestEditions(limit);
+      const { id } = req.params;
+      await stationeryStoreService.deleteItem(id);
       res.status(200).json({
         success: true,
-        message: 'Latest editions fetched successfully',
-        count: books.length,
-        data: books,
+        message: 'Item deleted successfully',
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch latest editions',
+        message: 'Failed to delete item',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
+  // GET BEST SELLERS
+  async getBestSellers(req: Request, res: Response) {
+    try {
+      const limit = req.query.limit ? Number(req.query.limit) : 10;
+      const items = await stationeryStoreService.getBestSellers(limit);
+      res.status(200).json({
+        success: true,
+        message: 'Best sellers fetched successfully',
+        count: items.length,
+        data: items,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch best sellers',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
@@ -197,12 +196,12 @@ class StationeryStoreController {
   async getRecommendations(req: Request, res: Response) {
     try {
       const limit = req.query.limit ? Number(req.query.limit) : 10;
-      const books = await stationeryStoreService.getRecommendations(limit);
+      const items = await stationeryStoreService.getRecommendations(limit);
       res.status(200).json({
         success: true,
         message: 'Recommendations fetched successfully',
-        count: books.length,
-        data: books,
+        count: items.length,
+        data: items,
       });
     } catch (error) {
       res.status(500).json({
@@ -233,11 +232,11 @@ class StationeryStoreController {
         });
       }
 
-      const book = await stationeryStoreService.updateStock(id, quantity, operation);
+      const item = await stationeryStoreService.updateStock(id, quantity, operation);
       res.status(200).json({
         success: true,
         message: 'Stock updated successfully',
-        data: book,
+        data: item,
       });
     } catch (error) {
       res.status(500).json({
@@ -248,21 +247,21 @@ class StationeryStoreController {
     }
   }
 
-  // GET LOW STOCK BOOKS
+  // GET LOW STOCK ITEMS
   async getLowStock(req: Request, res: Response) {
     try {
       const threshold = req.query.threshold ? Number(req.query.threshold) : 5;
-      const books = await stationeryStoreService.getLowStockBooks(threshold);
+      const items = await stationeryStoreService.getLowStockItems(threshold);
       res.status(200).json({
         success: true,
-        message: 'Low stock books fetched successfully',
-        count: books.length,
-        data: books,
+        message: 'Low stock items fetched successfully',
+        count: items.length,
+        data: items,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch low stock books',
+        message: 'Failed to fetch low stock items',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }

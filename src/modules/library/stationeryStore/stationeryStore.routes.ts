@@ -1,45 +1,45 @@
-// src/modules/library/bookStore/bookStore.routes.ts
+// src/modules/library/stationeryStore/stationeryStore.routes.ts
 
 import { Router } from 'express';
 import stationeryStoreController from './stationeryStore.controller';
 
 const router = Router();
 
-// ==================== BOOKS ====================
+// ==================== STATIONERY ITEMS ====================
 
-// GET /api/library/book-store/books
-router.get('/books', stationeryStoreController.getAll);
+// GET /api/library/stationery-store/items
+router.get('/items', stationeryStoreController.getAll);
 
-// GET /api/library/book-store/books/latest-editions
-router.get('/books/latest-editions', stationeryStoreController.getLatestEditions);
+// GET /api/library/stationery-store/items/best-sellers
+router.get('/items/best-sellers', stationeryStoreController.getBestSellers);
 
-// GET /api/library/book-store/books/recommendations
-router.get('/books/recommendations', stationeryStoreController.getRecommendations);
+// GET /api/library/stationery-store/items/recommendations
+router.get('/items/recommendations', stationeryStoreController.getRecommendations);
 
-// GET /api/library/book-store/books/isbn/:isbn
-router.get('/books/isbn/:isbn', stationeryStoreController.getByISBN);
+// GET /api/library/stationery-store/items/sku/:sku
+router.get('/items/sku/:sku', stationeryStoreController.getBySKU);
 
-// GET /api/library/book-store/books/:id
-router.get('/books/:id', stationeryStoreController.getOne);
+// GET /api/library/stationery-store/items/:id
+router.get('/items/:id', stationeryStoreController.getOne);
 
-// POST /api/library/book-store/books
-router.post('/books', stationeryStoreController.create);
+// POST /api/library/stationery-store/items
+router.post('/items', stationeryStoreController.create);
 
-// PUT /api/library/book-store/books/:id
-router.put('/books/:id', stationeryStoreController.update);
+// PUT /api/library/stationery-store/items/:id
+router.put('/items/:id', stationeryStoreController.update);
 
-// PATCH /api/library/book-store/books/:id/status
-router.patch('/books/:id/status', stationeryStoreController.updateStatus);
+// PATCH /api/library/stationery-store/items/:id/status
+router.patch('/items/:id/status', stationeryStoreController.updateStatus);
 
-// DELETE /api/library/book-store/books/:id
-router.delete('/books/:id', stationeryStoreController.delete);
+// DELETE /api/library/stationery-store/items/:id
+router.delete('/items/:id', stationeryStoreController.delete);
 
 // ==================== INVENTORY ====================
 
-// PATCH /api/library/book-store/inventory/:id
+// PATCH /api/library/stationery-store/inventory/:id
 router.patch('/inventory/:id', stationeryStoreController.updateStock);
 
-// GET /api/library/book-store/inventory/low-stock
+// GET /api/library/stationery-store/inventory/low-stock
 router.get('/inventory/low-stock', stationeryStoreController.getLowStock);
 
 export default router;

@@ -2,7 +2,7 @@
 
 import { prisma } from "../../../lib/prisma";
 
-interface BookFilters {
+interface StationeryFilters {
   page?: number;
   limit?: number;
   search?: string;
@@ -13,15 +13,12 @@ interface BookFilters {
   sortOrder?: "asc" | "desc";
 }
 
-interface CreateBookData {
+interface CreateStationeryData {
   title: string;
-  isbn?: string;
-  author: string;
-  publisher?: string;
-  edition?: string;
-  publicationYear?: number;
-  pages?: number;
-  language?: string;
+  sku?: string;
+  brand?: string;
+  category: string;
+  subcategory?: string;
   price: number;
   comparePrice?: number;
   stock: number;
@@ -30,11 +27,13 @@ interface CreateBookData {
   images?: string[];
   weight?: number;
   dimensions?: string;
+  color?: string;
+  material?: string;
 }
 
 class StationeryStoreService {
   // Helper for pagination
-  private getPaginationParams(filters: BookFilters) {
+  private getPaginationParams(filters: StationeryFilters) {
     const page = Math.max(1, Number(filters.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(filters.limit) || 10));
     const skip = (page - 1) * limit;
@@ -84,23 +83,23 @@ class StationeryStoreService {
     return slug;
   }
 
-  // CREATE BOOK
-  async createBook(data: CreateBookData) {
+  // CREATE ITEM
+  async createItem(data: CreateStationeryData) {
     try {
-      // Check if ISBN already exists
-      if (data.isbn) {
-        const existingBook = await prisma.stationeryStore.findUnique({
-          where: { isbn: data.isbn },
+      // Check if SKU already exists
+      if (data.sku) {
+        const existingItem = await prisma.stationeryStore.findUnique({
+          where: { sku: data.sku },
         });
-        if (existingBook) {
-          throw new Error("Book with this ISBN already exists");
+        if (existingItem) {
+          throw new Error("Item with this SKU already exists");
         }
       }
 
       // Generate unique slug
       const slug = await this.generateUniqueSlug(data.title);
 
-      const book = await prisma.stationeryStore.create({
+      const item = await prisma.stationeryStore.create({
         data: {
           ...data,
           slug,
@@ -108,14 +107,14 @@ class StationeryStoreService {
         },
       });
 
-      return book;
+      return item;
     } catch (error) {
-      throw new Error(`Failed to create book: ${error}`);
+      throw new Error(`Failed to create item: ${error}`);
     }
   }
 
-  // GET ALL BOOKS WITH PAGINATION
-  async getAllBooks(filters: BookFilters) {
+  // GET ALL ITEMS WITH PAGINATION
+  async getAllItems(filters: StationeryFilters) {
     try {
       const { page, limit, skip } = this.getPaginationParams(filters);
 
@@ -125,9 +124,9 @@ class StationeryStoreService {
       if (filters.search) {
         where.OR = [
           { title: { contains: filters.search, mode: "insensitive" } },
-          { author: { contains: filters.search, mode: "insensitive" } },
-          { isbn: { contains: filters.search, mode: "insensitive" } },
-          { publisher: { contains: filters.search, mode: "insensitive" } },
+          { brand: { contains: filters.search, mode: "insensitive" } },
+          { category: { contains: filters.search, mode: "insensitive" } },
+          { sku: { contains: filters.search, mode: "insensitive" } },
         ];
       }
 
@@ -146,7 +145,7 @@ class StationeryStoreService {
       orderBy[sortBy] = sortOrder;
 
       // Execute queries
-      const [books, totalItems] = await Promise.all([
+      const [items, totalItems] = await Promise.all([
         prisma.stationeryStore.findMany({
           where,
           orderBy,
@@ -156,127 +155,124 @@ class StationeryStoreService {
         prisma.stationeryStore.count({ where }),
       ]);
 
-      return this.createPaginationResult(books, totalItems, page, limit);
+      return this.createPaginationResult(items, totalItems, page, limit);
     } catch (error) {
-      throw new Error(`Failed to fetch books: ${error}`);
+      throw new Error(`Failed to fetch items: ${error}`);
     }
   }
 
-  // GET BOOK BY ID
-  async getBookById(id: string) {
+  // GET ITEM BY ID
+  async getItemById(id: string) {
     try {
-      const book = await prisma.stationeryStore.findUnique({
+      const item = await prisma.stationeryStore.findUnique({
         where: { id },
       });
-      return book;
+      return item;
     } catch (error) {
-      throw new Error(`Failed to fetch book: ${error}`);
+      throw new Error(`Failed to fetch item: ${error}`);
     }
   }
 
-  // GET BOOK BY ISBN
-  async getBookByISBN(isbn: string) {
+  // GET ITEM BY SKU
+  async getItemBySKU(sku: string) {
     try {
-      const book = await prisma.stationeryStore.findUnique({
-        where: { isbn },
+      const item = await prisma.stationeryStore.findUnique({
+        where: { sku },
       });
-      return book;
+      return item;
     } catch (error) {
-      throw new Error(`Failed to fetch book by ISBN: ${error}`);
+      throw new Error(`Failed to fetch item by SKU: ${error}`);
     }
   }
 
-  // UPDATE BOOK
-  async updateBook(id: string, data: Partial<CreateBookData>) {
+  // UPDATE ITEM
+  async updateItem(id: string, data: Partial<CreateStationeryData>) {
     try {
-      const existingBook = await prisma.stationeryStore.findUnique({ where: { id } });
-      if (!existingBook) {
-        throw new Error("Book not found");
+      const existingItem = await prisma.stationeryStore.findUnique({ where: { id } });
+      if (!existingItem) {
+        throw new Error("Item not found");
       }
 
-      // Check ISBN uniqueness if being updated
-      if (data.isbn && data.isbn !== existingBook.isbn) {
-        const isbnExists = await prisma.stationeryStore.findUnique({
-          where: { isbn: data.isbn },
+      // Check SKU uniqueness if being updated
+      if (data.sku && data.sku !== existingItem.sku) {
+        const skuExists = await prisma.stationeryStore.findUnique({
+          where: { sku: data.sku },
         });
-        if (isbnExists) {
-          throw new Error("Book with this ISBN already exists");
+        if (skuExists) {
+          throw new Error("Item with this SKU already exists");
         }
       }
 
       // Update slug if title is being updated
-      let updateData: Partial<CreateBookData> & { slug?: string } = { ...data };
-      if (data.title && data.title !== existingBook.title) {
-        // fix me 
-        // const slug = await this.generateUniqueSlug(data.title);
-        // updateData.slug = slug;
+      let updateData: Partial<CreateStationeryData> & { slug?: string } = { ...data };
+      if (data.title && data.title !== existingItem.title) {
         const slug = await this.generateUniqueSlug(data.title);
         updateData.slug = slug;
       }
 
-      const book = await prisma.stationeryStore.update({
+      const item = await prisma.stationeryStore.update({
         where: { id },
         data: updateData,
       });
 
-      return book;
+      return item;
     } catch (error) {
-      throw new Error(`Failed to update book: ${error}`);
+      throw new Error(`Failed to update item: ${error}`);
     }
   }
 
-  // UPDATE BOOK STATUS
-  async updateBookStatus(
+  // UPDATE ITEM STATUS
+  async updateItemStatus(
     id: string,
     status: "ACTIVE" | "INACTIVE" | "OUT_OF_STOCK" | "DISCONTINUED"
   ) {
     try {
-      const book = await prisma.stationeryStore.update({
+      const item = await prisma.stationeryStore.update({
         where: { id },
         data: { status },
       });
-      return book;
+      return item;
     } catch (error) {
-      throw new Error(`Failed to update book status: ${error}`);
+      throw new Error(`Failed to update item status: ${error}`);
     }
   }
 
-  // DELETE BOOK
-  async deleteBook(id: string) {
+  // DELETE ITEM
+  async deleteItem(id: string) {
     try {
-      const existingBook = await prisma.stationeryStore.findUnique({ where: { id } });
-      if (!existingBook) {
-        throw new Error("Book not found");
+      const existingItem = await prisma.stationeryStore.findUnique({ where: { id } });
+      if (!existingItem) {
+        throw new Error("Item not found");
       }
 
       await prisma.stationeryStore.delete({ where: { id } });
-      return { message: "Book deleted successfully" };
+      return { message: "Item deleted successfully" };
     } catch (error) {
-      throw new Error(`Failed to delete book: ${error}`);
+      throw new Error(`Failed to delete item: ${error}`);
     }
   }
 
-  // GET LATEST EDITIONS
-  async getLatestEditions(limit: number = 20) {
+  // GET BEST SELLERS
+  async getBestSellers(limit: number = 10) {
     try {
-      const books = await prisma.stationeryStore.findMany({
+      const items = await prisma.stationeryStore.findMany({
         where: {
-          isLatestEdition: true,
+          isBestSeller: true,
           status: "ACTIVE",
         },
         orderBy: { createdAt: "desc" },
         take: limit,
       });
-      return books;
+      return items;
     } catch (error) {
-      throw new Error(`Failed to fetch latest editions: ${error}`);
+      throw new Error(`Failed to fetch best sellers: ${error}`);
     }
   }
 
   // GET RECOMMENDATIONS
   async getRecommendations(limit: number = 10) {
     try {
-      const books = await prisma.stationeryStore.findMany({
+      const items = await prisma.stationeryStore.findMany({
         where: {
           isRecommended: true,
           status: "ACTIVE",
@@ -284,7 +280,7 @@ class StationeryStoreService {
         orderBy: { createdAt: "desc" },
         take: limit,
       });
-      return books;
+      return items;
     } catch (error) {
       throw new Error(`Failed to fetch recommendations: ${error}`);
     }
@@ -297,18 +293,18 @@ class StationeryStoreService {
     operation: "add" | "subtract" | "set"
   ) {
     try {
-      const book = await prisma.stationeryStore.findUnique({ where: { id } });
-      if (!book) {
-        throw new Error("Book not found");
+      const item = await prisma.stationeryStore.findUnique({ where: { id } });
+      if (!item) {
+        throw new Error("Item not found");
       }
 
       let newStock: number;
       switch (operation) {
         case "add":
-          newStock = book.stock + quantity;
+          newStock = item.stock + quantity;
           break;
         case "subtract":
-          newStock = Math.max(0, book.stock - quantity);
+          newStock = Math.max(0, item.stock - quantity);
           break;
         case "set":
           newStock = Math.max(0, quantity);
@@ -317,8 +313,8 @@ class StationeryStoreService {
           throw new Error("Invalid operation");
       }
 
-      // Update book stock
-      const updatedBook = await prisma.stationeryStore.update({
+      // Update item stock
+      const updatedItem = await prisma.stationeryStore.update({
         where: { id },
         data: { stock: newStock },
       });
@@ -326,7 +322,7 @@ class StationeryStoreService {
       // Log inventory change
       await prisma.inventoryLog.create({
         data: {
-          bookId: id,
+          stationaryId: id,
           type:
             operation === "add"
               ? "PURCHASE"
@@ -334,31 +330,31 @@ class StationeryStoreService {
               ? "SALE"
               : "ADJUSTMENT",
           quantity: operation === "subtract" ? -quantity : quantity,
-          previousStock: book.stock,
+          previousStock: item.stock,
           newStock: newStock,
           reason: `Stock ${operation}`,
         },
       });
 
-      return updatedBook;
+      return updatedItem;
     } catch (error) {
       throw new Error(`Failed to update stock: ${error}`);
     }
   }
 
-  // GET LOW STOCK BOOKS
-  async getLowStockBooks(threshold: number = 5) {
+  // GET LOW STOCK ITEMS
+  async getLowStockItems(threshold: number = 5) {
     try {
-      const books = await prisma.stationeryStore.findMany({
+      const items = await prisma.stationeryStore.findMany({
         where: {
           stock: { lte: threshold },
           status: "ACTIVE",
         },
         orderBy: { stock: "asc" },
       });
-      return books;
+      return items;
     } catch (error) {
-      throw new Error(`Failed to fetch low stock books: ${error}`);
+      throw new Error(`Failed to fetch low stock items: ${error}`);
     }
   }
 }
