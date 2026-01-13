@@ -34,7 +34,7 @@ model Category {
 // ACADEMIC BOOK STORE MODELS
 // ============================================
 
-model AcademicBook {
+model BookStore {
   id              String   @id @default(uuid())
   title           String
   slug            String   @unique
@@ -66,44 +66,9 @@ model AcademicBook {
   
   @@index([status])
   @@index([isbn])
-  @@map("academic_books")
+  @@map("book_store")
 }
 
-
-model artAndCraftSupplies {
-  id              String   @id @default(uuid())
-  title           String
-  slug            String   @unique
-  isbn            String?  @unique
-  author          String
-  publisher       String?
-  edition         String?
-  publicationYear Int?
-  pages           Int?
-  language        String   @default("English")
-  price           Float
-  comparePrice    Float?   // Original price for discounts
-  stock           Int      @default(0)
-  description     String?
-  coverImage      String?
-  images          String[] @default([])
-  status          BookStatus @default(ACTIVE)
-  isRecommended   Boolean  @default(false)
-  isLatestEdition Boolean  @default(false)
-  weight          Float?   // in grams
-  dimensions      String?  // "20x15x2 cm"
-  
-   
-  orderItems      OrderItem[]
-  inventoryLogs   InventoryLog[]
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  @@index([status])
-  @@index([isbn])
-  // @@map("academic_books")
-}
 
 model Order {
   id              String   @id @default(uuid())
@@ -141,7 +106,7 @@ model OrderItem {
   orderId     String
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   bookId      String
-  book        AcademicBook @relation(fields: [bookId], references: [id])
+  book        BookStore @relation(fields: [bookId], references: [id])
   
   createdAt   DateTime @default(now())
   
@@ -160,7 +125,7 @@ model InventoryLog {
   
   // Relations
   bookId      String
-  book        AcademicBook @relation(fields: [bookId], references: [id])
+  book        BookStore @relation(fields: [bookId], references: [id])
   
   createdAt   DateTime @default(now())
   

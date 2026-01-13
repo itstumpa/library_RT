@@ -9,7 +9,7 @@ app.listen(PORT, () => {
   console.log(`📚 Library API endpoints:`);
   console.log(`✅   Health: http://localhost:${PORT}/`);
   console.log(`✅  Users: http://localhost:${PORT}/users`);
-  console.log(`✅  Academic Books: http://localhost:${PORT}/api/library/academic-book-store`);
+  console.log(`✅  Academic Books: http://localhost:${PORT}/api/library/book-store`);
   console.log(`✅  All Products: http://localhost:${PORT}/api/products`);
   console.log(`✅ Search Products: http://localhost:${PORT}/api/products/search?q=physics`);
 });
