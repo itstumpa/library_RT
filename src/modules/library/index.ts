@@ -2,7 +2,7 @@
 
 // Export all subcategory modules
 // export * from './bookStore';
-export * from "./book-store";
+export * from "./bookStore";
 // export * from './islamic_book_store';
 // export * from './childrens_book_store';
 // export * from './stationery_store';

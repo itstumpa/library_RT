@@ -31,7 +31,7 @@ const yearSchema = z
 // ========================
 // CREATE SCHEMA
 // ========================
-export const createAcademicBookSchema = z.object({
+export const createbookstoreSchema = z.object({
   body: z
     .object({
       title: z
@@ -120,7 +120,7 @@ export const createAcademicBookSchema = z.object({
 // ========================
 // UPDATE SCHEMA
 // ========================
-export const updateAcademicBookSchema = z.object({
+export const updatebookstoreSchema = z.object({
   params: z.object({
     id: z.string().uuid("Invalid book ID"),
   }),
@@ -234,7 +234,7 @@ export const updateAcademicBookSchema = z.object({
 // ========================
 // QUERY SCHEMA
 // ========================
-export const queryAcademicBookSchema = z.object({
+export const querybookstoreSchema = z.object({
   query: z.object({
     page: z
       .string()
@@ -362,9 +362,9 @@ export const stockUpdateSchema = z.object({
 // ========================
 // TYPE EXPORTS
 // ========================
-export type CreateAcademicBookInput = z.infer<typeof createAcademicBookSchema>;
-export type UpdateAcademicBookInput = z.infer<typeof updateAcademicBookSchema>;
-export type QueryAcademicBookInput = z.infer<typeof queryAcademicBookSchema>;
+export type CreatebookstoreInput = z.infer<typeof createbookstoreSchema>;
+export type UpdatebookstoreInput = z.infer<typeof updatebookstoreSchema>;
+export type QuerybookstoreInput = z.infer<typeof querybookstoreSchema>;
 export type BulkUpdateInput = z.infer<typeof bulkUpdateSchema>;
 export type BulkDeleteInput = z.infer<typeof bulkDeleteSchema>;
 export type StockUpdateInput = z.infer<typeof stockUpdateSchema>;

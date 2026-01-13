@@ -1,26 +1,25 @@
 // src/modules/products/products.service.ts
 
-import { prisma } from '../../lib/prisma';
+import { prisma } from "../../lib/prisma";
 
 class ProductsService {
-  
   // Get all products from all subcategories
   async getAllProducts() {
     try {
-      // For now, only academic books. Later we'll add more product types
-      const academicBooks = await prisma.academicBook.findMany({
-        orderBy: { createdAt: 'desc' },
+      const books = await prisma.bookStore.findMany({
+        orderBy: { createdAt: "desc" },
       });
 
-      // Transform to common product format
-      const products = academicBooks.map(book => ({
+      const products = books.map((book) => ({
         id: book.id,
         title: book.title,
+        author: book.author,
         price: book.price,
         stock: book.stock,
-        category: 'library',
-        subcategory: 'academic-book-store',
-        type: 'academic-book',
+        category: "library",
+        subcategory: "book-store",
+        type: "book",
+        status: book.status,
         createdAt: book.createdAt,
       }));
 
@@ -33,25 +32,27 @@ class ProductsService {
   // Search products across all subcategories
   async searchProducts(query: string) {
     try {
-      const academicBooks = await prisma.academicBook.findMany({
+      const books = await prisma.bookStore.findMany({
         where: {
           OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { author: { contains: query, mode: 'insensitive' } },
-            { subject: { contains: query, mode: 'insensitive' } },
+            { title: { contains: query, mode: "insensitive" } },
+            { author: { contains: query, mode: "insensitive" } },
+            { publisher: { contains: query, mode: "insensitive" } },
+            { isbn: { contains: query, mode: "insensitive" } },
           ],
         },
       });
 
-      const products = academicBooks.map(book => ({
+      const products = books.map((book) => ({
         id: book.id,
         title: book.title,
         author: book.author,
         price: book.price,
         stock: book.stock,
-        category: 'library',
-        subcategory: 'academic-book-store',
-        type: 'academic-book',
+        category: "library",
+        subcategory: "book-store",
+        type: "book",
+        status: book.status,
       }));
 
       return products;
@@ -63,14 +64,17 @@ class ProductsService {
   // Get products by category
   async getProductsByCategory(category: string) {
     try {
-      if (category === 'library') {
-        const academicBooks = await prisma.academicBook.findMany();
-        return academicBooks.map(book => ({
+      if (category === "library") {
+        const books = await prisma.bookStore.findMany();
+        return books.map((book) => ({
           id: book.id,
           title: book.title,
+          author: book.author,
           price: book.price,
-          category: 'library',
-          subcategory: 'academic-book-store',
+          stock: book.stock,
+          category: "library",
+          subcategory: "book-store",
+          status: book.status,
         }));
       }
 

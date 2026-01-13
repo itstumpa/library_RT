@@ -3,7 +3,8 @@
 import { Router } from "express";
 
 // Import all subcategory routes
-import bookStoreRoutes from "./book-store/bookStore.routes";
+import bookStoreRoutes from "./bookStore/bookStore.routes";
+import stationeryStoreRoutes from './stationeryStore/stationeryStore.routes';
 // import bookStoreRoutes from '../../modules/library/bookStore/bookStore.routes';
 // import islamicbookStoreRoutes from './islamic_book_store/islamicbookStore.routes';
 // import childrensbookStoreRoutes from './childrens_book_store/childrensbookStore.routes';
@@ -21,7 +22,8 @@ const router = Router();
 // ========================
 
 // router.use('/bookStore', bookStoreRoutes);
-router.use("/academic-book-store", bookStoreRoutes);
+router.use("/book-store", bookStoreRoutes);
+router.use('/stationery-store', stationeryStoreRoutes);
 // router.use('/islamic-book-store', islamicbookStoreRoutes);
 // router.use('/childrens-book-store', childrensbookStoreRoutes);
 // router.use('/stationery-store', stationeryStoreRoutes);

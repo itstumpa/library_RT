@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   engineType = "binary"
@@ -29,9 +26,8 @@ model Category {
   updatedAt DateTime @updatedAt
 }
 
-
 // ============================================
-// ACADEMIC BOOK STORE MODELS
+// BOOK STORE MODELS
 // ============================================
 
 model BookStore {
@@ -57,7 +53,7 @@ model BookStore {
   weight          Float?   // in grams
   dimensions      String?  // "20x15x2 cm"
   
-   
+  // Relations
   orderItems      OrderItem[]
   inventoryLogs   InventoryLog[]
   
@@ -69,6 +65,39 @@ model BookStore {
   @@map("book_store")
 }
 
+model StationeryStore {
+  id              String   @id @default(uuid())
+  title           String
+  slug            String   @unique
+  sku             String?  @unique
+  brand           String?
+  category        String   // "Pen", "Notebook", "Eraser", etc.
+  subcategory     String?  // "Ball Pen", "Gel Pen", etc.
+  price           Float
+  comparePrice    Float?
+  stock           Int      @default(0)
+  description     String?
+  coverImage      String?
+  images          String[] @default([])
+  status          BookStatus @default(ACTIVE)
+  isRecommended   Boolean  @default(false)
+  isBestSeller    Boolean  @default(false)
+  weight          Float?
+  dimensions      String?
+  color           String?
+  material        String?  // "Plastic", "Metal", "Paper", etc.
+  
+  // Relations
+  orderItems      OrderItem[]
+  inventoryLogs   InventoryLog[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([status])
+  @@index([category])
+  @@map("stationery_store")
+}
 
 model Order {
   id              String   @id @default(uuid())
@@ -89,6 +118,7 @@ model Order {
   // Relations
   items           OrderItem[]
   
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
@@ -107,7 +137,8 @@ model OrderItem {
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   bookId      String
   book        BookStore @relation(fields: [bookId], references: [id])
-  
+  stationaryId String?
+  stationary   StationeryStore? @relation(fields: [stationaryId], references: [id])
   createdAt   DateTime @default(now())
   
   @@unique([orderId, bookId])
@@ -127,6 +158,9 @@ model InventoryLog {
   bookId      String
   book        BookStore @relation(fields: [bookId], references: [id])
   
+  stationaryId String?
+  stationary   StationeryStore? @relation(fields: [stationaryId], references: [id])
+
   createdAt   DateTime @default(now())
   
   @@index([bookId])
@@ -144,7 +178,6 @@ enum BookStatus {
   OUT_OF_STOCK
   DISCONTINUED
 }
-
 
 enum OrderStatus {
   PENDING
@@ -169,5 +202,3 @@ enum UserRole {
   USER
   ADMIN
 }
-
-

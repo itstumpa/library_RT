@@ -36,3 +36,12 @@ npx prisma studio
 
 # Seed database
 npx ts-node prisma/seeds/index.ts
+
+## api_endpoints
+/api/library/book-store/books                    ← All books with pagination
+/api/library/book-store/books/:id                ← Single book
+/api/library/book-store/books/isbn/:isbn         ← Book by ISBN
+/api/library/book-store/books/latest-editions    ← Latest editions
+/api/library/book-store/books/recommendations    ← Recommended books
+/api/library/book-store/inventory/:id            ← Update stock
+/api/library/book-store/inventory/low-stock      ← Low stock alerts

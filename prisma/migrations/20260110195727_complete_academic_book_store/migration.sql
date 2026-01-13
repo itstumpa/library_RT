@@ -1,7 +1,7 @@
 /*
   Warnings:
 
-  - You are about to drop the `AcademicBook` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `bookstore` table. If the table is not empty, all the data it contains will be lost.
 
 */
 -- CreateEnum
@@ -35,7 +35,7 @@ CREATE TYPE "InventoryLogType" AS ENUM ('PURCHASE', 'SALE', 'ADJUSTMENT', 'RETUR
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 
 -- DropTable
-DROP TABLE "AcademicBook";
+DROP TABLE "bookstore";
 
 -- CreateTable
 CREATE TABLE "academic_books" (

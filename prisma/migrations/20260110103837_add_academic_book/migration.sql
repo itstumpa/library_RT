@@ -38,7 +38,7 @@ DROP TABLE "Product";
 DROP TABLE "SubCategory";
 
 -- CreateTable
-CREATE TABLE "AcademicBook" (
+CREATE TABLE "bookstore" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "author" TEXT NOT NULL,
@@ -49,5 +49,5 @@ CREATE TABLE "AcademicBook" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "AcademicBook_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "bookstore_pkey" PRIMARY KEY ("id")
 );

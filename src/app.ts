@@ -61,8 +61,8 @@ app.use((req, res) => {
       'GET /users',
       'POST /users',
       'DELETE /users/:id',
-      'GET /api/library/academic-book-store',
-      'POST /api/library/academic-book-store',
+      'GET /api/library/book-store',
+      'POST /api/library/book-store',
       'GET /api/products',
       'GET /api/products/search?q=query'
     ]
