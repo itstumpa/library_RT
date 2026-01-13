@@ -21,6 +21,14 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 
 // ============================================
 // ACADEMIC BOOK STORE MODELS
@@ -62,7 +70,40 @@ model AcademicBook {
 }
 
 
-
+model artAndCraftSupplies {
+  id              String   @id @default(uuid())
+  title           String
+  slug            String   @unique
+  isbn            String?  @unique
+  author          String
+  publisher       String?
+  edition         String?
+  publicationYear Int?
+  pages           Int?
+  language        String   @default("English")
+  price           Float
+  comparePrice    Float?   // Original price for discounts
+  stock           Int      @default(0)
+  description     String?
+  coverImage      String?
+  images          String[] @default([])
+  status          BookStatus @default(ACTIVE)
+  isRecommended   Boolean  @default(false)
+  isLatestEdition Boolean  @default(false)
+  weight          Float?   // in grams
+  dimensions      String?  // "20x15x2 cm"
+  
+   
+  orderItems      OrderItem[]
+  inventoryLogs   InventoryLog[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([status])
+  @@index([isbn])
+  // @@map("academic_books")
+}
 
 model Order {
   id              String   @id @default(uuid())

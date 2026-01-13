@@ -1,6 +1,6 @@
-// src/modules/library/academicBookStore/academicBookStore.service.ts
+// src/modules/library/bookStore/bookStore.service.ts
 
-import { prisma } from '../../../lib/prisma';
+import { prisma } from "../../../lib/prisma";
 
 // Academic Book Store specific fields
 interface AcademicBookData {
@@ -21,8 +21,7 @@ interface UpdateAcademicBookData {
   description?: string;
 }
 
-class AcademicBookStoreService {
-  
+class bookStoreService {
   // CREATE - Add new academic book
   async createBook(data: AcademicBookData) {
     try {
@@ -46,7 +45,7 @@ class AcademicBookStoreService {
   async getAllBooks() {
     try {
       const books = await prisma.academicBook.findMany({
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
       return books;
     } catch (error) {
@@ -98,7 +97,7 @@ class AcademicBookStoreService {
         where: {
           subject: {
             contains: subject,
-            mode: 'insensitive',
+            mode: "insensitive",
           },
         },
       });
@@ -109,4 +108,4 @@ class AcademicBookStoreService {
   }
 }
 
-export default new AcademicBookStoreService();
+export default new bookStoreService();
