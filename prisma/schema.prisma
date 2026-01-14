@@ -61,7 +61,7 @@ model BookStore {
   updatedAt       DateTime @updatedAt
   
   @@index([status])
-  @@index([isbn])
+  // @@index([isbn])
   @@map("book_store")
 }
 
